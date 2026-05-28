@@ -28,24 +28,7 @@ final class StoreBookingRequest extends FormRequest
             'email' => ['required', 'string', 'email:rfc', 'max:255'],
             'nb_guests' => ['required', 'integer', 'min:1', 'max:20'],
             'date' => ['required', 'date_format:Y-m-d'],
-            'slot' => [
-                'required',
-                'integer',
-                Rule::enum(Slot::class),
-                Rule::exists('bookable_slots', 'slot')->where(
-                    fn ($query) => $query->whereDate('date', $this->input('date'))
-                ),
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'slot.exists' => 'The selected time slot is not available for this date.',
+            'slot' => ['required', 'integer', Rule::enum(Slot::class)],
         ];
     }
 }

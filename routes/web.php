@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\Web\ShowBookingPageController;
-use App\Http\Controllers\Web\StoreBookingController;
+declare(strict_types=1);
+
+use App\Http\Controllers\ShowBookingPageController;
+use App\Http\Controllers\StoreBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowBookingPageController::class);
