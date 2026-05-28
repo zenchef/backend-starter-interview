@@ -8,19 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('time_slots', function (Blueprint $table) {
+        Schema::create('bookings', function (Blueprint $table) {
             $table->id();
+            $table->string('firstname');
+            $table->string('lastname');
+            $table->string('email');
+            $table->unsignedSmallInteger('nb_guests');
             $table->date('date');
-            $table->string('time', 5); // e.g. "12:00"
-            $table->string('period', 10); // "lunch" | "dinner"
-            $table->unsignedTinyInteger('max_covers');
-            $table->unsignedTinyInteger('booked_covers')->default(0);
+            $table->unsignedSmallInteger('slot');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('time_slots');
+        Schema::dropIfExists('bookings');
     }
 };
