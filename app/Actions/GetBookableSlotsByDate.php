@@ -23,10 +23,6 @@ final class GetBookableSlotsByDate
      */
     public function __invoke(): Collection
     {
-        return BookableSlot::query()
-            ->orderBy('date')
-            ->orderBy('slot')
-            ->get()
-            ->groupBy(fn (BookableSlot $bookableSlot) => $bookableSlot->date->toDateString());
+        return collect();
     }
 }
