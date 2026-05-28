@@ -4,24 +4,20 @@ A minimal Laravel + SQLite project for a hands-on interview exercise.
 
 ## Setup
 
-Make sure you have **PHP >= 8.2** and **Composer** installed.
+Make sure you have **Docker** installed and running.
 
 ```bash
-git clone <repo-url> backend-starter-interview
-cd backend-starter-interview
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --seed
-php artisan serve
+./install.sh
+./sail up -d
+./sail artisan migrate:fresh --seed
 ```
 
-Open http://localhost:8000 — you should see the booking UI.
+Go to http://localhost:8888.
 
-## Verify your setup
+## Running tests
 
 ```bash
-./check-setup.sh
+./sail test
 ```
 
 
