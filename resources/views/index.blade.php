@@ -2,132 +2,110 @@
 
 @section('title', 'Book a table')
 
+@php
+    $inputClasses = 'w-full px-3 py-2 border-[1.5px] border-stone-200 rounded-lg text-sm bg-white outline-none focus:border-stone-900';
+    $labelClasses = 'block text-sm font-medium text-stone-600 mb-1.5';
+    $sectionTitleClasses = 'block text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2';
+    $errorClasses = 'text-red-800 text-xs mt-1.5';
+    $selectedDate = old('date', $bookableSlotsByDate->keys()->first());
+@endphp
+
 @section('content')
-    <h1>Book a table</h1>
+    <h1 class="text-2xl font-bold mb-6">Book a table</h1>
 
-    <div class="field">
-        <label for="date-select" class="section-title">Date</label>
-        <select id="date-select">
-            @foreach ($bookableSlotsByDate as $date => $slots)
-                <option value="{{ $date }}">
-                    {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+    @if (session('success'))
+        <div class="bg-green-50 border-[1.5px] border-green-300 text-green-800 px-4 py-3 rounded-lg text-sm mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
 
-    <p class="section-title">Available slots</p>
-    @foreach ($bookableSlotsByDate as $date => $bookableSlots)
-        <div class="slots-grid" data-date="{{ $date }}" @unless ($loop->first) hidden @endunless>
-            @foreach ($bookableSlots as $bookableSlot)
-                <button type="button"
-                        class="slot-btn"
-                        data-slot="{{ $bookableSlot->slot->value }}"
-                        data-name="{{ $bookableSlot->slot->getDisplayName() }}">
-                    {{ $bookableSlot->slot->getDisplayName() }}
+    <form method="POST" action="{{ route('bookings.store') }}">
+        @csrf
+
+        <div class="mb-4">
+            <label for="date" class="{{ $sectionTitleClasses }}">Date</label>
+            <select id="date" name="date" class="{{ $inputClasses }}"
+                    onchange="document.querySelectorAll('[data-slots]').forEach(g => g.classList.toggle('hidden', g.dataset.slots !== this.value))">
+                @foreach ($bookableSlotsByDate as $date => $slots)
+                    <option value="{{ $date }}" @selected($date === $selectedDate)>
+                        {{ \Carbon\Carbon::parse($date)->isoFormat('dddd, D MMMM Y') }}
+                    </option>
+                @endforeach
+            </select>
+            @error('date')<p class="{{ $errorClasses }}">{{ $message }}</p>@enderror
+        </div>
+
+        <p class="{{ $sectionTitleClasses }}">Available slots</p>
+        @foreach ($bookableSlotsByDate as $date => $bookableSlots)
+            <div data-slots="{{ $date }}"
+                 @class(['flex flex-wrap gap-2', 'hidden' => $date !== $selectedDate])>
+                @foreach ($bookableSlots as $bookableSlot)
+                    <label class="relative inline-flex items-center justify-center px-3.5 py-2 border-[1.5px] border-stone-200 rounded-lg bg-white cursor-pointer text-sm font-medium min-w-[72px] select-none hover:border-stone-700 has-[:checked]:bg-stone-900 has-[:checked]:text-white has-[:checked]:border-stone-900">
+                        <input type="radio" name="slot" value="{{ $bookableSlot->slot->value }}"
+                               class="absolute opacity-0 pointer-events-none"
+                               @checked((int) old('slot') === $bookableSlot->slot->value) required />
+                        <span>{{ $bookableSlot->slot->getDisplayName() }}</span>
+                    </label>
+                @endforeach
+            </div>
+        @endforeach
+        @error('slot')<p class="{{ $errorClasses }}">{{ $message }}</p>@enderror
+
+        <div class="bg-white border-[1.5px] border-stone-200 rounded-xl p-6 mt-6">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-semibold uppercase tracking-wider text-stone-500">Your details</p>
+                <button type="button" onclick="autoFill()"
+                        class="text-xs font-medium text-stone-600 hover:text-stone-900 underline cursor-pointer">
+                    Auto fill
                 </button>
-            @endforeach
-        </div>
-    @endforeach
+            </div>
 
-    <form id="booking-form" class="form-section" hidden>
-        <p class="section-title" id="form-header">Your details</p>
-        <input type="hidden" name="slot" id="slot" />
+            <div class="mb-4">
+                <label for="firstname" class="{{ $labelClasses }}">First name</label>
+                <input type="text" id="firstname" name="firstname" maxlength="255"
+                       class="{{ $inputClasses }}"
+                       placeholder="John" value="{{ old('firstname') }}" required />
+                @error('firstname')<p class="{{ $errorClasses }}">{{ $message }}</p>@enderror
+            </div>
+            <div class="mb-4">
+                <label for="lastname" class="{{ $labelClasses }}">Last name</label>
+                <input type="text" id="lastname" name="lastname" maxlength="255"
+                       class="{{ $inputClasses }}"
+                       placeholder="Doe" value="{{ old('lastname') }}" required />
+                @error('lastname')<p class="{{ $errorClasses }}">{{ $message }}</p>@enderror
+            </div>
+            <div class="mb-4">
+                <label for="email" class="{{ $labelClasses }}">Email</label>
+                <input type="email" id="email" name="email" maxlength="255"
+                       class="{{ $inputClasses }}"
+                       placeholder="john.doe@example.com" value="{{ old('email') }}" required />
+                @error('email')<p class="{{ $errorClasses }}">{{ $message }}</p>@enderror
+            </div>
+            <div class="mb-4">
+                <label for="nb_guests" class="{{ $labelClasses }}">Number of guests</label>
+                <input type="number" id="nb_guests" name="nb_guests" min="1" max="20"
+                       class="{{ $inputClasses }}"
+                       value="{{ old('nb_guests', 2) }}" required />
+                @error('nb_guests')<p class="{{ $errorClasses }}">{{ $message }}</p>@enderror
+            </div>
 
-        <div class="field">
-            <label for="firstname">First name</label>
-            <input type="text" id="firstname" name="firstname" required />
+            <button type="submit"
+                    class="w-full py-2.5 bg-stone-900 text-white rounded-lg text-base font-semibold cursor-pointer mt-2 hover:bg-stone-800 disabled:bg-stone-500 disabled:cursor-not-allowed">
+                Confirm reservation
+            </button>
         </div>
-        <div class="field">
-            <label for="lastname">Last name</label>
-            <input type="text" id="lastname" name="lastname" required />
-        </div>
-        <div class="field">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required />
-        </div>
-        <div class="field">
-            <label for="nb_guests">Number of guests</label>
-            <input type="number" id="nb_guests" name="nb_guests" min="1" value="2" required />
-        </div>
-
-        <button type="submit" class="submit-btn">Confirm reservation</button>
-        <div class="alert success" id="alert-success" hidden></div>
-        <div class="alert error" id="alert-error" hidden></div>
     </form>
-@endsection
 
-@push('scripts')
-<script>
-    const dateSelect = document.getElementById('date-select');
-    const form       = document.getElementById('booking-form');
-    const header     = document.getElementById('form-header');
-    const hiddenSlot = document.getElementById('slot');
-    const okAlert    = document.getElementById('alert-success');
-    const errAlert   = document.getElementById('alert-error');
-
-    dateSelect.addEventListener('change', () => {
-        document.querySelectorAll('.slots-grid').forEach(g => g.hidden = g.dataset.date !== dateSelect.value);
-        form.hidden = true;
-        clearAlerts();
-    });
-
-    document.querySelectorAll('.slot-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            hiddenSlot.value = btn.dataset.slot;
-            header.textContent = `Booking ${dateSelect.value} at ${btn.dataset.name}`;
-            form.hidden = false;
-            clearAlerts();
-        });
-    });
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        clearAlerts();
-
-        const submit = form.querySelector('.submit-btn');
-        submit.disabled = true;
-
-        try {
-            const res = await fetch('/api/bookings', {
-                method:  'POST',
-                headers: {
-                    'Content-Type':    'application/json',
-                    'Accept':          'application/json',
-                    'X-CSRF-TOKEN':    document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({
-                    date:      dateSelect.value,
-                    slot:      parseInt(hiddenSlot.value, 10),
-                    firstname: document.getElementById('firstname').value.trim(),
-                    lastname:  document.getElementById('lastname').value.trim(),
-                    email:     document.getElementById('email').value.trim(),
-                    nb_guests: parseInt(document.getElementById('nb_guests').value, 10),
-                }),
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                okAlert.textContent = 'Reservation confirmed!';
-                okAlert.hidden = false;
-                form.reset();
-            } else {
-                errAlert.textContent = data.message ?? 'Something went wrong.';
-                errAlert.hidden = false;
-            }
-        } catch {
-            errAlert.textContent = 'Could not reach the server.';
-            errAlert.hidden = false;
-        } finally {
-            submit.disabled = false;
+    <script>
+        function autoFill() {
+            const firstnames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Ethan', 'Fiona', 'George', 'Hannah'];
+            const lastnames  = ['Martin', 'Bernard', 'Dubois', 'Petit', 'Robert', 'Richard', 'Durand', 'Moreau'];
+            const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+            const f = pick(firstnames);
+            const l = pick(lastnames);
+            document.getElementById('firstname').value = f;
+            document.getElementById('lastname').value  = l;
+            document.getElementById('email').value     = `${f.toLowerCase()}.${l.toLowerCase()}@example.com`;
         }
-    });
-
-    function clearAlerts() {
-        okAlert.hidden = true;
-        errAlert.hidden = true;
-    }
-</script>
-@endpush
+    </script>
+@endsection
