@@ -19,7 +19,7 @@ final class StoreBookingController
     ): RedirectResponse {
         $validated = $request->validated();
 
-        if (! $hasAvailabilityForBooking($validated['date'], $request->enum('slot', Slot::class))) {
+        if (! $hasAvailabilityForBooking($validated['date'], $request->enum('slot', Slot::class), (int) $validated['nb_guests'])) {
             throw ValidationException::withMessages([
                 'slot' => 'The selected time slot is not available for this date.',
             ]);

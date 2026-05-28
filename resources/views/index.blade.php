@@ -8,6 +8,7 @@
     $sectionTitleClasses = 'block text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2';
     $errorClasses = 'text-red-800 text-xs mt-1.5';
     $selectedDate = old('date', $bookableSlotsByDate->keys()->first());
+    $slotCapacity = (int) config('restaurant.slot_capacity');
 @endphp
 
 @section('content')
@@ -40,11 +41,25 @@
             <div data-slots="{{ $date }}"
                  @class(['flex flex-wrap gap-2', 'hidden' => $date !== $selectedDate])>
                 @foreach ($bookableSlots as $bookableSlot)
-                    <label class="relative inline-flex items-center justify-center px-3.5 py-2 border-[1.5px] border-stone-200 rounded-lg bg-white cursor-pointer text-sm font-medium min-w-[72px] select-none hover:border-stone-700 has-[:checked]:bg-stone-900 has-[:checked]:text-white has-[:checked]:border-stone-900">
+                    @php
+                        $occupation = $occupationsByDate[$date][$bookableSlot->slot->value] ?? null;
+                        $occupationBgClass = match (true) {
+                            $occupation === null => 'bg-white',
+                            $occupation >= $slotCapacity => 'bg-red-100',
+                            $occupation >= $slotCapacity / 2 => 'bg-amber-100',
+                            default => 'bg-green-100',
+                        };
+                    @endphp
+                    <label class="relative inline-flex flex-col items-center justify-center px-3.5 py-2 border-[1.5px] border-stone-200 rounded-lg {{ $occupationBgClass }} cursor-pointer text-sm font-medium min-w-[72px] select-none hover:border-stone-700 has-[:checked]:bg-stone-900 has-[:checked]:text-white has-[:checked]:border-stone-900">
                         <input type="radio" name="slot" value="{{ $bookableSlot->slot->value }}"
                                class="absolute opacity-0 pointer-events-none"
                                @checked((int) old('slot') === $bookableSlot->slot->value) required />
                         <span>{{ $bookableSlot->slot->getDisplayName() }}</span>
+                        @isset($occupationsByDate)
+                            <span class="text-[10px] font-normal opacity-70">
+                                {{ $occupation ?? 0 }}/{{ $slotCapacity }}
+                            </span>
+                        @endisset
                     </label>
                 @endforeach
             </div>
