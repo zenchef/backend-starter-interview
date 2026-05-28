@@ -18,7 +18,6 @@ final class HasAvailabilityForBooking
             ->whereDate('date', $date)
             ->where('slot', $slot)
             ->exists(); */
-
         $occupationsByDate = ($this->getOccupationsByDate)([$date]);
         $occupation = $occupationsByDate[$date][$slot->value] ?? 0;
 
