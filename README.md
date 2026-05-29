@@ -10,6 +10,8 @@ Make sure you have **Docker** installed and running.
 ./install.sh
 ./sail up -d
 ./sail artisan migrate:fresh --seed
+./sail npm install
+./sail npm run dev
 ```
 
 Go to http://localhost:8888.
