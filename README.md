@@ -33,7 +33,7 @@ The action's docblock describes the expected shape and ordering.
 The booking form now works. Take a look at `app/Http/Controllers/StoreBookingController.php` and discuss:
 
 - What do you think of the **current validation**? What would you improve?
-- If we needed to add a **logging mechanism** around booking creation, how would you approach it?
+- If we needed to add a **confirmation email** around booking creation, how would you approach it?
 
 No code to write here — just a discussion.
 

@@ -25,8 +25,8 @@ final class StoreBookingRequest extends FormRequest
         return [
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email:rfc', 'max:255'],
-            'nb_guests' => ['required', 'integer', 'min:1', 'max:20'],
+            'email' => ['required', 'string', 'max:255'],
+            'nb_guests' => ['required', 'integer'],
             'date' => ['required', 'date_format:Y-m-d'],
             'slot' => ['required', 'integer', Rule::enum(Slot::class)],
         ];
