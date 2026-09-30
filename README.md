@@ -27,26 +27,19 @@ Go to http://localhost:8888.
 
 ---
 
-## Interview steps
+## Interview options
 
-### 1. Display dates and slots
+### A. Display dates and slots
 
-Open the booking page — dates and slots are empty.
+Open the booking page — dates and available times are empty.
+Fill up holes in the code so that it's possible to choose a datetime option. 
 
-Start from `app/Http/Controllers/ShowBookingPageController.php` and implement `app/Actions/GetBookableSlotsByDate.php` so the page lists every bookable slot grouped by date.
+### B. Review `StoreBookingController`
 
-The action's docblock describes the expected shape and ordering.
-
-### 2. Review `StoreBookingController`
-
-The booking form now works. Take a look at `app/Http/Controllers/StoreBookingController.php` and discuss:
-
-- What do you think of the **current validation**? What would you improve?
-- If we needed to add a **confirmation email** around booking creation, how would you approach it?
-
+The booking form now works. Let's do a code review of  `app/Http/Controllers/StoreBookingController.php`.
 No code to write here — just a discussion.
 
-### 3. Implement `GetOccupationsForDate` (TDD)
+### C. Implement `GetOccupationsForDate` (TDD)
 
 Implement `app/Actions/GetOccupationsForDate.php`. Tests are already written in `tests/Feature/Actions/GetOccupationsForDateTest.php` — make them pass.
 
@@ -56,7 +49,7 @@ Implement `app/Actions/GetOccupationsForDate.php`. Tests are already written in 
 
 This action powers two features:
 
-- **Display occupation** for each slot on the booking page.
+- **Display occupation** for each time on the booking page.
 - **Prevent overbooking** in the booking creation flow.
 
 Useful constants live in `config/restaurant.php`:
