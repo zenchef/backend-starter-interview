@@ -7,11 +7,20 @@ A minimal Laravel + SQLite project for a hands-on interview exercise.
 Make sure you have **Docker** installed and running.
 
 ```bash
-./install.sh
+ cp .env.example .env
+
+ docker run --rm --interactive --tty \
+  --volume $PWD:/app \
+  --user $(id -u):$(id -g) \
+  composer install
+
+ln -s ./vendor/bin/sail .
+chmod +x sail
+
 ./sail up -d
 ./sail artisan migrate:fresh --seed
 ./sail npm install
-./sail npm run dev
+./sail npm run build
 ```
 
 Go to http://localhost:8888.
